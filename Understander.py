@@ -1,5 +1,5 @@
 
-list1 = [1, 2, 4, 8, 16, 32]
+list1 = [48, 96, 144, 192, 240, 288]
 
 def simple_multiplication(local_list):
 
