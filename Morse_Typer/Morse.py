@@ -87,42 +87,51 @@ def morse_to_letters():
             print('R = Roger, Yes\nN = No, Negative\nDE = This is from [Code Name]\nEC = End of Transmission\nQRZ = "Who is calling me?"')
             continue
 
-        User_Input = User_Input.replace(" ", "|")
-        words = User_Input.split("  ")
+
 
         signal = []
         Dot_Time = 100
 
-        #Split Words, then splits into letters
-        for word in words:
-            for letter in word.split("|"): #THIS IS THE PROBLEM THE | IS THE PROBLEM HAAHHAHA
-                # Handles unknown Characters
-                try:
-                    translated_phrase.append(alphabet[letter])
-                except KeyError:
-                    translated_phrase.append("[Unknown Value]")
-                # Handles the sounds, splits the letters into symbols(. - / )
-                for symbol in letter:
-                    if symbol == ".":
-                        signal.append(cw.generate_tone(Dot_Time))
-                    elif symbol == "-":
-                        signal.append(cw.generate_tone(Dot_Time * 3))
-                    elif symbol == " ":
-                        signal.append(cw.generate_silence(Dot_Time * 3))
-                    elif symbol == "/":
-                        signal.append(cw.generate_silence(Dot_Time * 7))
-                    #Gap between symbols
-                    signal.append(cw.generate_silence(Dot_Time))
+        """
+        User_Input = "-.. .  .-.. --- -..."
+        
+        User_Input.split(" ") will give ['-..', '.', '', '.-..', '---', '-...']
+        The "" isn't recognized in alphabet[letter] and that causes [Unknown Value]
+        
+        by adding the if letter == "" this problem is resolved
+        """
 
-            translated_phrase.append(" ")
+        for letter in User_Input.split(" "):
+            if letter == "":
+                translated_phrase.append(" ")
+                continue
+            try:
+                translated_phrase.append(alphabet[letter])
+            except KeyError:
+                translated_phrase.append("[Unknown Value]")
 
-        final_signal = numpy.concatenate(signal)
-        cw.play(final_signal)
+
+        for symbol in User_Input:
+
+            if symbol == ".":
+                signal.append(cw.generate_tone(Dot_Time))
+            elif symbol == "-":
+                signal.append(cw.generate_tone(Dot_Time * 3))
+            elif symbol == " ":
+                signal.append(cw.generate_silence(Dot_Time * 3))
+            elif symbol == "|":
+                signal.append(cw.generate_silence(Dot_Time * 2))
+            signal.append(cw.generate_silence(Dot_Time))
+
+        print("".join(translated_phrase))
+
 
         if ". -.-." in User_Input: # if EC is in the user's text...
             print("-_-_-Transmission ended-_-_-")
             transmitting = False
 
+        final_signal = numpy.concatenate(signal)
+        cw.play(final_signal) #MUST be at the end or else it'll be annoying.
 
 if __name__ == "__main__":
     morse_to_letters()
