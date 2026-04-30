@@ -4,13 +4,7 @@ import pyaudio
 #The entire ContinuousWaves class was written by AI. I am not proud of myself.
 
 class ContinuousWaves:
-    """
-    MATH
 
-    signal(t) = volume⋅sin(2π⋅frequency⋅t)
-
-
-    """
     def __init__(self):
         self.frequency = 815
         self.samplerate = 44100
@@ -38,7 +32,6 @@ class ContinuousWaves:
         stream.stop_stream()
         stream.close()
         p.terminate()
-
 
 def morse_to_letters():
     alphabet = {
@@ -83,6 +76,7 @@ def morse_to_letters():
         "---..": "8",
         "----.": "9",
     }
+    cw = ContinuousWaves()
 
     transmitting = True
     while transmitting:
@@ -93,35 +87,37 @@ def morse_to_letters():
             print('R = Roger, Yes\nN = No, Negative\nDE = This is from [Code Name]\nEC = End of Transmission\nQRZ = "Who is calling me?"')
             continue
 
+        User_Input = User_Input.replace(" ", "|")
         words = User_Input.split("  ")
+
         signal = []
         Dot_Time = 100
+
         #Split Words, then splits into letters
         for word in words:
-            for letter in word.split(" "):
+            for letter in word.split("|"): #THIS IS THE PROBLEM THE | IS THE PROBLEM HAAHHAHA
+                # Handles unknown Characters
                 try:
                     translated_phrase.append(alphabet[letter])
-
                 except KeyError:
                     translated_phrase.append("[Unknown Value]")
-
+                # Handles the sounds, splits the letters into symbols(. - / )
                 for symbol in letter:
                     if symbol == ".":
-                        signal.append(ContinuousWaves().generate_tone(Dot_Time))
+                        signal.append(cw.generate_tone(Dot_Time))
                     elif symbol == "-":
-                        signal.append(ContinuousWaves().generate_tone(Dot_Time * 3))
+                        signal.append(cw.generate_tone(Dot_Time * 3))
                     elif symbol == " ":
-                        signal.append(ContinuousWaves().generate_silence(Dot_Time * 3))
+                        signal.append(cw.generate_silence(Dot_Time * 3))
                     elif symbol == "/":
-                        signal.append(ContinuousWaves().generate_silence(Dot_Time * 7))
+                        signal.append(cw.generate_silence(Dot_Time * 7))
                     #Gap between symbols
-                    signal.append(ContinuousWaves().generate_silence(Dot_Time))
+                    signal.append(cw.generate_silence(Dot_Time))
 
             translated_phrase.append(" ")
 
         final_signal = numpy.concatenate(signal)
-        print("".join(translated_phrase))
-        ContinuousWaves().play(final_signal)
+        cw.play(final_signal)
 
         if ". -.-." in User_Input: # if EC is in the user's text...
             print("-_-_-Transmission ended-_-_-")
